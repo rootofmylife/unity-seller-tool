@@ -1,0 +1,10 @@
+django==4.1.2
+djangorestframework==3.14.0
+django-cors-headers==3.13.0
+gunicorn
+
+requests
+
+celery==5.2.7
+celery[redis]
+redis

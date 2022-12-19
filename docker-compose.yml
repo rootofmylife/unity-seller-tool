@@ -1,0 +1,68 @@
+version: '3.2'
+
+services:
+  front:
+    container_name: front
+    build:
+      context: ./widgets
+      dockerfile: Dockerfile
+    command: npm run serve
+    ports:
+      - "9000:9000"
+    networks:
+      - webnet
+    depends_on:
+      - back
+    restart: on-failure
+
+  back:
+    container_name: back
+    build:
+      context: ./endpoint
+      dockerfile: Dockerfile
+    command: >
+      sh -c "
+            python manage.py makemigrations &&
+            python3 manage.py migrate &&
+            gunicorn --bind 0.0.0.0:8000 endpoint.wsgi"
+    ports:
+      - "8000:8000"
+    networks:
+      - webnet
+    restart: on-failure
+
+  redis:
+    image: redis:alpine
+    hostname: redis
+    networks:
+      - webnet
+    restart: on-failure
+
+  celery:
+    build:
+      context: ./endpoint
+    command: celery -A endpoint worker -l info
+    networks:
+      - webnet
+    volumes:
+      - ./endpoint:/app
+    depends_on:
+      - back
+      - redis
+    restart: on-failure
+
+  celery-beat:
+    build:
+      context: ./endpoint
+    command: celery -A endpoint beat -l info
+    networks:
+      - webnet
+    volumes:
+      - ./endpoint:/app
+    depends_on:
+      - back
+      - redis
+    restart: on-failure
+
+networks:
+  webnet:
