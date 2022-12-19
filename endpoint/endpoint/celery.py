@@ -20,7 +20,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     "mon_wed_task": {
         "task": "unity.tasks.mon_wed_task",
-        # "schedule": crontab(day_of_week='mon,wed', hour='0', minute='0')
-        "schedule": crontab(minute='*/1')
+        "schedule": crontab(day_of_week='mon,wed', hour='0', minute='0')
+        # "schedule": crontab(minute='*/1')
     },
 }
